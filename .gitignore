@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.db-wal
+*.db-shm
+
+# Backups locais
+backups/
+
+# Sistema Operacional e Logs
+*.log
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Controle de Extras | CPR XIII</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- TELA DE LOGIN BLOQUEANTE -->
+<div id="login-container" class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-badge">XIII</div>
+      <div class="login-eyebrow">POLÍCIA MILITAR DO PARÁ</div>
+      <h2>CONTROLE DE EXTRAS</h2>
+      <p>Comando de Policiamento Regional XIII</p>
+    </div>
+    
+    <form id="login-form" class="login-form" autocomplete="on">
+      <div id="login-error" class="login-error hidden"></div>
+      
+      <div class="login-field">
+        <label for="login-username">Usuário</label>
+        <div class="input-with-icon">
+          <span class="field-icon">👤</span>
+          <input type="text" id="login-username" autocomplete="username" placeholder="Digite seu usuário" required autofocus>
+        </div>
+      </div>
+      
+      <div class="login-field">
+        <label for="login-password">Senha</label>
+        <div class="input-with-icon">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="login-password" autocomplete="current-password" placeholder="Digite sua senha" required>
+          <button type="button" id="toggle-password" class="password-toggle" title="Mostrar/ocultar senha">👁</button>
+        </div>
+      </div>
+      
+      <button type="submit" id="login-btn" class="btn btn-primary login-btn">
+        <span>Acessar sistema</span> →
+      </button>
+
+      <div class="login-footer">
+        <span class="lock-icon">🛡</span> Acesso restrito · Autenticação obrigatória
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- APLICAÇÃO PRINCIPAL (INICIALMENTE OCULTA ATÉ O LOGIN) -->
+<div class="app-shell hidden" id="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">XIII</div>
+      <div><strong>CONTROLE DE EXTRAS</strong><small>CPR XIII · Gestão regional</small></div>
+    </div>
+
+    <!-- Perfil do usuário autenticado -->
+    <div class="sidebar-user" id="sidebar-user">
+      <div class="user-card">
+        <div class="user-avatar" id="user-avatar">IJ</div>
+        <div class="user-info">
+          <strong id="user-name">Igor João</strong>
+          <span id="user-badge" class="badge-role">DESENVOLVEDOR</span>
+        </div>
+      </div>
+      <div class="user-actions">
+        <button type="button" class="btn-user-action" id="btn-change-password" title="Alterar minha senha">🔑 Senha</button>
+        <button type="button" class="btn-user-action danger" id="btn-logout" title="Sair do sistema">⎋ Sair</button>
+      </div>
+    </div>
+
+    <div class="nav-label">GESTÃO</div>
+    <button class="nav active" data-page="dashboard"><span>▦</span> Painel geral</button>
+    <button class="nav" data-page="scales"><span>▤</span> Escalas e extras</button>
+    <button class="nav" data-page="personnel"><span>♙</span> Efetivo</button>
+    <button class="nav" data-page="quotas"><span>◉</span> Operações e cotas</button>
+    <button class="nav" data-page="reports"><span>▥</span> Relatórios</button>
+    <button class="nav" id="nav-users" data-page="users"><span>👥</span> Usuários</button>
+    <button class="nav" id="nav-logs" data-page="logs"><span>◷</span> Logs de alterações</button>
+    
+    <div class="sidebar-bottom">
+      <span class="status-dot" id="system-status-dot"></span>
+      <div><strong id="system-status-title">Banco local ativo</strong><small id="system-status-desc">Dados armazenados neste computador</small></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">POLÍCIA MILITAR DO PARÁ</div>
+        <h1 id="page-title">Painel geral</h1>
+      </div>
+      <div class="top-actions">
+        <label class="month-label">MÊS DE REFERÊNCIA<input type="month" id="month-picker"></label>
+        <button class="btn btn-ghost" id="refresh-btn">↻ Atualizar</button>
+      </div>
+    </header>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- DASHBOARD -->
+    <section id="page-dashboard" class="page active">
+      <div class="intro">
+        <div>
+          <h2>Visão regional das extras</h2>
+          <p>As cotas pertencem ao CPR XIII e podem ser utilizadas pelo efetivo do CPR XIII, 31ª CIPM, 17º BPM e 36º BPM.</p>
+        </div>
+        <div class="month-chip" id="month-chip">Mês atual</div>
+      </div>
+      <div class="stats-grid">
+        <article class="stat-card"><div class="stat-icon blue">♙</div><div><span>Policiais ativos</span><strong id="stat-people">—</strong><small>Nas quatro unidades</small></div></article>
+        <article class="stat-card"><div class="stat-icon violet">▤</div><div><span>Extras escaladas</span><strong id="stat-scales">—</strong><small>No mês selecionado</small></div></article>
+        <article class="stat-card"><div class="stat-icon green">◉</div><div><span>Cotas ainda disponíveis</span><strong id="stat-remaining">—</strong><small>Somatório das operações</small></div></article>
+        <article class="stat-card"><div class="stat-icon amber">◷</div><div><span>Até o fim do mês</span><strong id="stat-days">—</strong><small id="stat-days-caption">Dias restantes</small></div></article>
+      </div>
+      <div class="section-heading">
+        <div>
+          <h2>Saldo por operação</h2>
+          <p>Acompanhe as cotas utilizadas e o que ainda falta distribuir.</p>
+        </div>
+        <button class="btn btn-primary" data-go="quotas">+ Configurar cotas</button>
+      </div>
+      <div id="quota-cards" class="quota-grid"></div>
+      <div class="section-heading">
+        <div>
+          <h2>Alertas de distribuição</h2>
+          <p>Priorize o uso das cotas sem ultrapassar os limites individuais.</p>
+        </div>
+      </div>
+      <div id="alerts" class="alerts-list"></div>
+      <div class="section-heading">
+        <div>
+          <h2>Policiais próximos do limite</h2>
+          <p>O limite mensal é de 12 extras por policial, somando todas as operações.</p>
+        </div>
+        <button class="btn btn-ghost" data-go="personnel">Ver efetivo completo →</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Policial</th><th>Unidade de origem</th><th>Extras no mês</th><th>Restantes até 12</th><th>Situação</th></tr></thead>
+          <tbody id="limit-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ESCALAS -->
+    <section id="page-scales" class="page">
+      <div class="section-heading">
+        <div>
+          <h2>Registrar nova extra</h2>
+          <p>O sistema verifica o limite de 12 por policial, duplicidade na data e saldo da operação antes de salvar.</p>
+        </div>
+      </div>
+      <form id="scale-form" class="panel form-grid">
+        <label class="field span-2">Policial<select id="scale-person" required></select><small>O policial permanece vinculado à unidade de origem.</small></label>
+        <label class="field">Operação<select id="scale-operation" required></select></label>
+        <label class="field">Data da extra<input id="scale-date" type="date" required></label>
+        <label class="field span-2">Observações (opcional)<input id="scale-notes" maxlength="250" placeholder="Ex.: turno, local ou referência da escala"></label>
+        <div class="form-actions span-2"><div class="hint">Cada registro ativo consome 1 cota da operação selecionada.</div><button class="btn btn-primary" type="submit">Validar e registrar escala</button></div>
+      </form>
+      <div class="section-heading">
+        <div>
+          <h2>Escalas do mês</h2>
+          <p>Use Excluir para remover um lançamento incorreto. A exclusão libera a cota e fica registrada na aba Logs.</p>
+        </div>
+        <input class="search" id="scale-search" placeholder="Buscar policial, unidade ou operação…">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Policial</th><th>Unidade</th><th>Operação</th><th>Situação</th><th>Observações</th><th>Ações</th></tr></thead>
+          <tbody id="scales-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- EFETIVO -->
+    <section id="page-personnel" class="page">
+      <div class="section-heading">
+        <div>
+          <h2>Cadastro do efetivo</h2>
+          <p>Inclui policiais do próprio CPR XIII e das unidades subordinadas.</p>
+        </div>
+      </div>
+      <form id="person-form" class="panel inline-form">
+        <label class="field grow">Nome completo / identificação<input id="person-name" required maxlength="100" placeholder="Ex.: CB SILVA"></label>
+        <label class="field">Unidade de origem<select id="person-unit" required></select></label>
+        <button class="btn btn-primary" type="submit">+ Adicionar policial</button>
+      </form>
+      <div class="section-heading compact">
+        <div>
+          <h2>Efetivo cadastrado</h2>
+          <p id="person-count-label">—</p>
+        </div>
+        <input class="search" id="person-search" placeholder="Buscar nome ou unidade…">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Policial</th><th>Unidade de origem</th><th>Extras no mês</th><th>Disponibilidade</th><th>Status cadastro</th><th>Ações</th></tr></thead>
+          <tbody id="person-table"></tbody>
+        </table>
+      </div>
+      <div class="note-box">
+        <strong>Importação inicial da planilha</strong>
+        <p>Foram pré-cadastrados os nomes identificados na planilha de outubro de 2026. Confira os nomes e as unidades antes de usar o sistema oficialmente. As escalas da planilha não foram importadas automaticamente para evitar converter datas/colunas ambíguas em lançamentos incorretos.</p>
+      </div>
+    </section>
+
+    <!-- OPERAÇÕES E COTAS -->
+    <section id="page-quotas" class="page">
+      <div class="section-heading">
+        <div>
+          <h2>Operações e cotas regionais</h2>
+          <p>Defina o total autorizado para cada operação em cada mês. O saldo é compartilhado por todos os policiais elegíveis do CPR XIII e unidades subordinadas.</p>
+        </div>
+      </div>
+      <form id="operation-form" class="panel inline-form">
+        <label class="field grow">Nome da nova operação<input id="operation-name" required maxlength="100" placeholder="Ex.: OPERAÇÃO VERÃO"></label>
+        <button class="btn btn-primary" type="submit">+ Cadastrar operação</button>
+      </form>
+      <div class="section-heading compact">
+        <div>
+          <h2>Configurar quantidade de cotas</h2>
+          <p>Cadastre ou ajuste o total autorizado. Não é possível reduzir abaixo do que já foi escalado.</p>
+        </div>
+      </div>
+      <form id="quota-form" class="panel form-grid">
+        <label class="field">Operação<select id="quota-operation" required></select></label>
+        <label class="field">Mês<input id="quota-month" type="month" required></label>
+        <label class="field">Total de cotas autorizadas<input id="quota-total" type="number" min="0" step="1" required placeholder="Ex.: 50"></label>
+        <div class="form-actions span-2"><div class="hint">Uma extra registrada = uma cota consumida.</div><button class="btn btn-primary" type="submit">Salvar quantidade de cotas</button></div>
+      </form>
+      <div class="section-heading compact">
+        <div>
+          <h2>Resumo das cotas do mês</h2>
+          <p>As operações abaixo usam o saldo do CPR XIII; não há cotas separadas por batalhão, salvo se a gestão definir uma operação específica.</p>
+        </div>
+      </div>
+      <div id="quota-management" class="table-wrap"></div>
+      <div class="section-heading compact">
+        <div>
+          <h2>Gerenciar operações</h2>
+          <p>Edite nomes ou inative operações sem apagar o histórico de escalas e cotas.</p>
+        </div>
+      </div>
+      <div id="operation-management" class="table-wrap"></div>
+      <div class="section-heading compact">
+        <div>
+          <h2>Gerenciar unidades</h2>
+          <p>Adicione ou renomeie unidades. Ao renomear, os policiais vinculados acompanham a alteração automaticamente.</p>
+        </div>
+      </div>
+      <form id="unit-form" class="panel inline-form">
+        <label class="field grow">Nome da nova unidade<input id="unit-name" required maxlength="100" placeholder="Ex.:  Xª CIPM"></label>
+        <button class="btn btn-primary" type="submit">+ Adicionar unidade</button>
+      </form>
+      <div id="unit-management" class="table-wrap"></div>
+      <div class="note-box">
+        <strong>Regra de controle</strong>
+        <p>O sistema impede uma nova escala se a operação não tiver cotas cadastradas para o mês, se o saldo tiver acabado ou se o policial já tiver 12 extras no mês, somando todas as operações.</p>
+      </div>
+    </section>
+
+    <!-- USUÁRIOS (ADMIN/DESENVOLVEDOR GERAL) -->
+    <section id="page-users" class="page">
+      <div class="section-heading">
+        <div>
+          <h2>Gerenciamento de Usuários</h2>
+          <p>Controle de operadores, administradores e redefinição de senhas do sistema.</p>
+        </div>
+        <button class="btn btn-primary" id="btn-add-user">+ Novo Usuário</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome / Identificação</th>
+              <th>Usuário (Login)</th>
+              <th>Perfil / Nível</th>
+              <th>Situação</th>
+              <th>Último login</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="users-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- LOGS DE AUDITORIA -->
+    <section id="page-logs" class="page">
+      <div class="section-heading">
+        <div>
+          <h2>Registro de alterações</h2>
+          <p>Últimas 1.000 alterações gravadas com o usuário autenticado, IP e máquina.</p>
+        </div>
+        <input class="search" id="logs-search" placeholder="Buscar usuário, IP, máquina ou ação…">
+      </div>
+      <div class="note-box">
+        <strong>Identificação das estações</strong>
+        <p>Cada alteração é vinculada ao usuário logado. Além disso, cada computador pode registrar um identificador da estação (ex.: PERMANÊNCIA-01) para fins de conferência interna.</p>
+        <button class="btn btn-ghost" id="machine-name-btn" type="button">Definir nome desta máquina</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data/hora</th>
+              <th>Usuário</th>
+              <th>Máquina informada</th>
+              <th>IP</th>
+              <th>Ação</th>
+              <th>Detalhes</th>
+            </tr>
+          </thead>
+          <tbody id="logs-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- RELATÓRIOS -->
+    <section id="page-reports" class="page">
+      <div class="section-heading">
+        <div>
+          <h2>Relatórios mensais</h2>
+          <p>Consulte as escalas do mês selecionado e exporte os registros para abrir no Excel.</p>
+        </div>
+        <a id="export-link" class="btn btn-primary" href="/api/export.csv">⇩ Exportar CSV</a>
+      </div>
+      <div class="stats-grid report-stats">
+        <article class="stat-card"><div><span>Escalas ativas/concluídas</span><strong id="report-total">—</strong></div></article>
+        <article class="stat-card"><div><span>Cotas restantes</span><strong id="report-quota-left">—</strong></div></article>
+        <article class="stat-card"><div><span>Policiais no limite (12)</span><strong id="report-blocked">—</strong></div></article>
+      </div>
+      <div class="section-heading compact">
+        <div>
+          <h2>Totais por unidade de origem</h2>
+          <p>O efetivo é contabilizado na unidade de cadastro, mesmo quando atua em operação regional.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Unidade</th><th>Policiais ativos</th><th>Extras registradas</th><th>Policiais com 12 extras</th></tr></thead><tbody id="unit-report"></tbody></table>
+      </div>
+      <div class="section-heading compact">
+        <div>
+          <h2>Totais por operação</h2>
+          <p>Utilização das cotas autorizadas pelo CPR XIII.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Operação</th><th>Cotas autorizadas</th><th>Utilizadas</th><th>Saldo</th><th>Utilização</th></tr></thead><tbody id="operation-report"></tbody></table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      CONTROLE DE EXTRAS · CPR XIII <span>Versão 1.5 · Autenticação & Logs · Backup automático</span>
+    </footer>
+  </main>
+</div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <button id="modal-close" class="modal-close">×</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
