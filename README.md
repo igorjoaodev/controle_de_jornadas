@@ -2,7 +2,7 @@
 
 Sistema de Gestão Regional de Cotas e Escalas de Serviço Extraordinário da Polícia Militar do Pará — **Comando de Policiamento Regional XIII (CPR XIII)**.
 
-🌐 **Acesso Online (GitHub Pages)**: [https://igorjoaodev.github.io/Controle_Extras_CPR_XIII/](https://igorjoaodev.github.io/Controle_Extras_CPR_XIII/)
+🌐 **Acesso Online (GitHub Pages)**: [https://igorjoaodev.github.io/controle_de_jornadas/](https://igorjoaodev.github.io/controle_de_jornadas/)
 
 ---
 
@@ -24,7 +24,7 @@ O sistema conta com tela de login bloqueante e controle de permissões por perfi
 ## 🚀 Como Executar
 
 ### 1. Pelo Navegador (GitHub Pages)
-Acesse diretamente: [https://igorjoaodev.github.io/Controle_Extras_CPR_XIII/](https://igorjoaodev.github.io/Controle_Extras_CPR_XIII/)
+Acesse diretamente: [https://igorjoaodev.github.io/controle_de_jornadas/](https://igorjoaodev.github.io/controle_de_jornadas/)
 - Funciona 100% no navegador (Desktop, tablet ou celular).
 - Armazenamento local com suporte a todas as operações, limites de escala, cotas e relatórios.
 
@@ -50,3 +50,4 @@ Acesse diretamente: [https://igorjoaodev.github.io/Controle_Extras_CPR_XIII/](ht
 - **Backend**: Python 3 padrão (`http.server`, `sqlite3`, `hashlib`, `secrets`) — **sem dependências externas**.
 - **Banco de Dados**: SQLite em modo WAL (com backup automático na inicialização).
 - **Frontend**: HTML5, CSS3 moderno (design responsivo) e JavaScript nativo com modo híbrido (Servidor Python / GitHub Pages).
+
